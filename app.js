@@ -1,3 +1,32 @@
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getAuth,
+  GoogleAuthProvider,
+  signInWithPopup,
+  signOut,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  setDoc,
+  onSnapshot
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "네 Firebase API 키",
+  authDomain: "suhaengmoa.firebaseapp.com",
+  projectId: "suhaengmoa",
+  storageBucket: "suhaengmoa.firebasestorage.app",
+  messagingSenderId: "891768147581",
+  appId: "1:891768147581:web:30e5e11867b7404aa66b14"
+};
+
+const firebaseApp = initializeApp(firebaseConfig);
+const auth = getAuth(firebaseApp);
+const db = getFirestore(firebaseApp);
 const $=s=>document.querySelector(s),$$=s=>document.querySelectorAll(s);const DB_NAME='suhaengmoa-files',DB_STORE='attachments';let assessments=load(),filter='all',viewDate=new Date(),selectedDate=new Date(),editingFiles=[],removedFiles=[],deferredInstall=null;
 const COLORS=['#3b82f6','#22c55e','#f97316','#a855f7','#ef4444','#eab308','#06b6d4','#ec4899','#64748b'];
 function load(){try{return JSON.parse(localStorage.getItem('suhaengmoa-data')||'[]')}catch{return []}}function save(){localStorage.setItem('suhaengmoa-data',JSON.stringify(assessments))}
