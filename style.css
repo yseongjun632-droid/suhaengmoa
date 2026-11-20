@@ -36,3 +36,43 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+.account-area {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.login-btn,
+.logout-btn {
+  border: 1px solid #e5e7eb;
+  background: white;
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+}
+
+.user-info.hidden {
+  display: none;
+}
+
+@media (max-width: 480px) {
+  .account-area {
+    gap: 4px;
+  }
+
+  .login-btn,
+  .logout-btn {
+    padding: 7px 9px;
+    font-size: 12px;
+  }
+}
