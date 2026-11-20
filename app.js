@@ -16,7 +16,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "네 Firebase API 키",
+  apiKey: "AIzaSyCoyDVUjSSy_e5BwNjY8bHftwWO9eDG1SY",
   authDomain: "suhaengmoa.firebaseapp.com",
   projectId: "suhaengmoa",
   storageBucket: "suhaengmoa.firebasestorage.app",
@@ -29,7 +29,33 @@ const auth = getAuth(firebaseApp);
 const db = getFirestore(firebaseApp);
 const $=s=>document.querySelector(s),$$=s=>document.querySelectorAll(s);const DB_NAME='suhaengmoa-files',DB_STORE='attachments';let assessments=load(),filter='all',viewDate=new Date(),selectedDate=new Date(),editingFiles=[],removedFiles=[],deferredInstall=null;
 const COLORS=['#3b82f6','#22c55e','#f97316','#a855f7','#ef4444','#eab308','#06b6d4','#ec4899','#64748b'];
-function load(){try{return JSON.parse(localStorage.getItem('suhaengmoa-data')||'[]')}catch{return []}}function save(){localStorage.setItem('suhaengmoa-data',JSON.stringify(assessments))}
+function load(){
+  try {
+    return JSON.parse(localStorage.getItem('suhaengmoa-data') || '[]');
+  } catch {
+    return [];
+  }
+}
+
+let currentUser = null;
+let unsubscribeSync = null;
+let syncReady = false;
+
+function save(){
+  localStorage.setItem('suhaengmoa-data', JSON.stringify(assessments));
+
+  if(currentUser && syncReady){
+    const ref = doc(db, 'users', currentUser.uid, 'data', 'main');
+
+    setDoc(ref, {
+      assessments,
+      updatedAt: new Date().toISOString()
+    }).catch(err => {
+      console.error('Firebase 저장 실패:', err);
+      alert('클라우드 저장에 실패했어요. 인터넷 연결을 확인해주세요.');
+    });
+  }
+}
 function uid(){return crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2)}function dateOnly(d){return new Date(d.getFullYear(),d.getMonth(),d.getDate())}function iso(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}function parseDate(s){const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d)}function daysUntil(s){return Math.round((dateOnly(parseDate(s))-dateOnly(new Date()))/86400000)}function dday(s){const n=daysUntil(s);return n===0?'D-Day':n>0?`D-${n}`:`D+${Math.abs(n)}`}function formatDate(s){const d=parseDate(s);return `${d.getMonth()+1}월 ${d.getDate()}일 ${['일','월','화','수','목','금','토'][d.getDay()]}`}
 function openDB(){return new Promise((res,rej)=>{const r=indexedDB.open(DB_NAME,1);r.onupgradeneeded=()=>r.result.createObjectStore(DB_STORE,{keyPath:'id'});r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)})}async function putFile(id,file){const db=await openDB();return new Promise((res,rej)=>{const tx=db.transaction(DB_STORE,'readwrite');tx.objectStore(DB_STORE).put({id,name:file.name,type:file.type,size:file.size,blob:file});tx.oncomplete=()=>res();tx.onerror=()=>rej(tx.error)})}async function getFile(id){const db=await openDB();return new Promise((res,rej)=>{const r=db.transaction(DB_STORE).objectStore(DB_STORE).get(id);r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)})}async function deleteFile(id){const db=await openDB();return new Promise((res,rej)=>{const tx=db.transaction(DB_STORE,'readwrite');tx.objectStore(DB_STORE).delete(id);tx.oncomplete=()=>res();tx.onerror=()=>rej(tx.error)})}
 function subjectColor(subject){const a=assessments.find(x=>x.subject===subject);return a?.color||'#64748b'}function uniqueSubjects(){return [...new Set(assessments.map(a=>a.subject).filter(Boolean))]}
@@ -47,4 +73,104 @@ async function handleFileAction(action,id){const f=await getFile(id);if(!f){aler
 async function shareText(a){const text=`📚 ${a.subject} 수행평가\n${a.title}\n📅 ${formatDate(a.date)} (${dday(a.date)})\n${a.description||''}${a.criteria?'\n평가 기준: '+a.criteria:''}`;try{if(navigator.share)await navigator.share({title:a.title,text});else if(navigator.clipboard){await navigator.clipboard.writeText(text);alert('공유 기능을 사용할 수 없어 내용을 복사했어요.')}}catch(err){if(err.name!=='AbortError')alert('공유에 실패했습니다.')}}
 $$('.nav-item').forEach(b=>b.onclick=()=>{const scene=b.dataset.scene;$$('.nav-item').forEach(x=>x.classList.toggle('active',x===b));$$('.scene').forEach(x=>x.classList.toggle('active',x.id===scene));if(scene==='calendarScene')renderCalendar()});$('#addBtn').onclick=()=>openForm();$('.close-modal').onclick=()=>$('#formModal').classList.add('hidden');$('#cancelForm').onclick=()=>$('#formModal').classList.add('hidden');$('.close-detail').onclick=()=>$('#detailModal').classList.add('hidden');$('#formModal').onclick=e=>{if(e.target===$('#formModal'))$('#formModal').classList.add('hidden')};$('#detailModal').onclick=e=>{if(e.target===$('#detailModal'))$('#detailModal').classList.add('hidden')};$$('.filter').forEach(b=>b.onclick=()=>{$$('.filter').forEach(x=>x.classList.remove('active'));b.classList.add('active');filter=b.dataset.filter;renderList()});$('#prevMonth').onclick=()=>{viewDate=new Date(viewDate.getFullYear(),viewDate.getMonth()-1,1);renderCalendar()};$('#nextMonth').onclick=()=>{viewDate=new Date(viewDate.getFullYear(),viewDate.getMonth()+1,1);renderCalendar()};$('#todayBtn').onclick=()=>{viewDate=new Date();selectedDate=new Date();renderCalendar()};
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstall=e;$('#installBtn').classList.remove('hidden')});$('#installBtn').onclick=async()=>{if(!deferredInstall)return;deferredInstall.prompt();await deferredInstall.userChoice;deferredInstall=null;$('#installBtn').classList.add('hidden')};if('serviceWorker'in navigator&&location.protocol!=='file:')navigator.serviceWorker.register('./service-worker.js').catch(console.warn);
+// Google 로그인
+const googleProvider = new GoogleAuthProvider();
+
+$('#loginBtn').onclick = async () => {
+  try {
+    await signInWithPopup(auth, googleProvider);
+  } catch (error) {
+    console.error(error);
+    alert('로그인 실패: ' + error.message);
+  }
+};
+
+// 로그아웃
+$('#logoutBtn').onclick = async () => {
+  try {
+    await signOut(auth);
+  } catch (error) {
+    console.error(error);
+    alert('로그아웃에 실패했어요.');
+  }
+};
+
+// 로그인 상태 확인
+onAuthStateChanged(auth, async user => {
+  currentUser = user;
+  syncReady = false;
+
+  if(unsubscribeSync){
+    unsubscribeSync();
+    unsubscribeSync = null;
+  }
+
+  $('#loginBtn').classList.toggle('hidden', !!user);
+  $('#userInfo').classList.toggle('hidden', !user);
+
+  if(!user){
+    $('#userName').textContent = '';
+    render();
+    return;
+  }
+
+  $('#userName').textContent = user.displayName || user.email || '사용자';
+
+  const ref = doc(db, 'users', user.uid, 'data', 'main');
+
+  try {
+    const snap = await getDoc(ref);
+
+    if(!snap.exists()){
+      // 최초 로그인: 기존 기기의 데이터를 클라우드에 저장
+      await setDoc(ref, {
+        assessments,
+        updatedAt: new Date().toISOString()
+      });
+    } else {
+      // 기존 클라우드 데이터와 현재 기기 데이터를 합침
+      const remote = snap.data().assessments || [];
+      const merged = new Map();
+
+      remote.forEach(a => merged.set(a.id, a));
+      assessments.forEach(a => merged.set(a.id, a));
+
+      assessments = [...merged.values()];
+
+      localStorage.setItem(
+        'suhaengmoa-data',
+        JSON.stringify(assessments)
+      );
+
+      await setDoc(ref, {
+        assessments,
+        updatedAt: new Date().toISOString()
+      });
+    }
+
+    syncReady = true;
+    render();
+
+    // 다른 기기에서 변경된 데이터 실시간 반영
+    unsubscribeSync = onSnapshot(ref, snap => {
+      if(!snap.exists()) return;
+
+      const data = snap.data();
+      if(!data.assessments) return;
+
+      assessments = data.assessments;
+
+      localStorage.setItem(
+        'suhaengmoa-data',
+        JSON.stringify(assessments)
+      );
+
+      render();
+    });
+
+  } catch(error) {
+    console.error('동기화 오류:', error);
+    alert('데이터 동기화에 실패했어요. Firebase 설정과 인터넷 연결을 확인해주세요.');
+  }
+});
 render();
