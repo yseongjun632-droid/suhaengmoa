@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#facc15"><meta name="description" content="수행평가 일정과 준비물을 한눈에 관리하는 앱">
+<link rel="manifest" href="manifest.json"><link rel="icon" href="icons/icon-192.png"><link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<title>수행모아</title><link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app-shell">
+  <header class="topbar"><div class="brand-mark">✓</div><div><h1>수행모아</h1><p>수행평가, 한눈에 모아보기.</p></div><button id="installBtn" class="install-btn hidden" title="앱 설치">앱 설치</button></header>
+  <main>
+    <section id="listScene" class="scene active">
+      <div class="summary-row"><div class="summary-card"><span>남은 수행평가</span><strong id="remainingCount">0</strong><small>개</small></div><div class="summary-card"><span>이번 주</span><strong id="weekCount">0</strong><small>개</small></div></div>
+      <div class="section-heading"><h2>다가오는 수행평가</h2><button id="addBtn" class="primary small">＋ 추가</button></div>
+      <div class="filter-row"><button class="filter active" data-filter="all">전체</button><button class="filter" data-filter="pending">미완료</button><button class="filter" data-filter="done">완료</button></div>
+      <div id="assessmentList" class="assessment-list"></div>
+      <div id="emptyList" class="empty hidden"><div class="empty-icon">📋</div><h3>등록된 수행평가가 없어요</h3><p>＋ 추가 버튼으로 첫 수행평가를 등록해 보세요.</p></div>
+    </section>
+    <section id="calendarScene" class="scene">
+      <div class="calendar-header"><button id="prevMonth" class="icon-btn" aria-label="이전 달">‹</button><h2 id="monthLabel"></h2><button id="nextMonth" class="icon-btn" aria-label="다음 달">›</button><button id="todayBtn" class="today-btn">오늘</button></div>
+      <div class="calendar-grid" id="calendarGrid"></div>
+      <div class="legend" id="legend"></div>
+      <div class="selected-date-heading"><h3 id="selectedDateLabel"></h3><span id="selectedDateCount"></span></div>
+      <div id="dayList" class="day-list"></div>
+      <div id="emptyDay" class="empty compact hidden">이 날짜에는 등록된 수행평가가 없어요.</div>
+    </section>
+  </main>
+  <nav class="bottom-nav"><button class="nav-item active" data-scene="listScene"><span class="nav-icon">☷</span><span>수행평가</span></button><button class="nav-item" data-scene="calendarScene"><span class="nav-icon">▦</span><span>캘린더</span></button></nav>
+</div>
+<div id="formModal" class="modal hidden"><div class="modal-card"><div class="modal-head"><h2 id="formTitle">수행평가 추가</h2><button class="icon-btn close-modal" aria-label="닫기">×</button></div><form id="assessmentForm">
+<input type="hidden" id="editId"><label>제목<input id="titleInput" required maxlength="100" placeholder="예: 함수 탐구 보고서"></label>
+<div class="two-cols"><label>과목<input id="subjectInput" required maxlength="30" placeholder="예: 수학"></label><label>과목 색상<input id="colorInput" type="color" value="#3b82f6"></label></div>
+<label>날짜<input id="dateInput" type="date" required></label><label>유형<select id="typeInput"><option>제출</option><option>발표</option><option>시험</option><option>실험</option><option>기타</option></select></label>
+<label>세부 내용<textarea id="descriptionInput" rows="3" placeholder="수행평가 내용, 안내 사항"></textarea></label><label>평가 기준<textarea id="criteriaInput" rows="3" placeholder="평가 기준"></textarea></label><label>준비물<textarea id="materialsInput" rows="2" placeholder="준비해야 할 것"></textarea></label><label>개인 메모<textarea id="notesInput" rows="2" placeholder="내가 기억할 내용"></textarea></label>
+<label class="file-label">첨부파일<input id="fileInput" type="file" multiple accept=".pdf,.hwp,.hwpx,.doc,.docx,.ppt,.pptx,.png,.jpg,.jpeg,.gif,.txt"></label><div id="pendingFiles" class="file-list"></div><div id="existingFiles" class="file-list"></div>
+<div class="form-actions"><button type="button" id="cancelForm" class="secondary">취소</button><button type="submit" class="primary">저장</button></div></form></div></div>
+<div id="detailModal" class="modal hidden"><div class="modal-card detail-card"><div class="modal-head"><h2>수행평가 상세</h2><button class="icon-btn close-detail" aria-label="닫기">×</button></div><div id="detailContent"></div></div></div>
+<script src="app.js"></script>
+</body></html>
