@@ -10,7 +10,14 @@
 </head>
 <body>
 <div class="app-shell">
-  <header class="topbar"><div class="brand-mark">✓</div><div><h1>수행모아</h1><p>수행평가, 한눈에 모아보기.</p></div><button id="installBtn" class="install-btn hidden" title="앱 설치">앱 설치</button></header>
+  <header class="topbar"><div class="brand-mark">✓</div><div><h1>수행모아</h1><p>수행평가, 한눈에 모아보기.</p></div><div class="account-area">
+  <button id="loginBtn" class="login-btn">Google 로그인</button>
+  <div id="userInfo" class="user-info hidden">
+    <span id="userName"></span>
+    <button id="logoutBtn" class="logout-btn">로그아웃</button>
+  </div>
+  <button id="installBtn" class="install-btn hidden" title="앱 설치">앱 설치</button>
+</div></header>
   <main>
     <section id="listScene" class="scene active">
       <div class="summary-row"><div class="summary-card"><span>남은 수행평가</span><strong id="remainingCount">0</strong><small>개</small></div><div class="summary-card"><span>이번 주</span><strong id="weekCount">0</strong><small>개</small></div></div>
